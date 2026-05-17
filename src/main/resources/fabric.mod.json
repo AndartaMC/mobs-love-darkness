@@ -3,34 +3,27 @@
 	"id": "mobs-love-darkness",
 	"version": "${version}",
 	"name": "Mobs Love Darkness",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "A Minecraft Fabric mod that gives certain mobs a chance to fixate on and destroy nearby light sources, creating dangerous dark zones and rewarding players who pay attention.",
 	"authors": [
-		"Me!"
+		"Eiruna"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/AndartaMC/mobs-love-darkness",
+		"sources": "https://github.com/AndartaMC/mobs-love-darkness"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/mobs-love-darkness/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
 			"eiruna.mobs.love.darkness.MobsLoveDarkness"
-		],
-		"client": [
-			"eiruna.mobs.love.darkness.client.MobsLoveDarknessClient"
 		]
 	},
 	"mixins": [
-		"mobs-love-darkness.mixins.json",
-		{
-			"config": "mobs-love-darkness.client.mixins.json",
-			"environment": "client"
-		}
+		"mobs-love-darkness.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.19.2",
+		"fabricloader": ">=0.18.0",
 		"minecraft": "~1.21.11",
 		"java": ">=21",
 		"fabric-api": "*"
