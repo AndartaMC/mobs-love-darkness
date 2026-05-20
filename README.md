@@ -43,7 +43,7 @@ The following blocks are targeted by default:
 
 ## Configuration
 
-The config file is generated at `config/mobs-love-darkness.json` on first launch. All fields include descriptions and valid ranges directly in the file.
+The config file is generated at `config/mobs-love-darkness.json5` on first launch. All fields include descriptions and valid ranges directly in the file.
 
 | Config | Default | Description |
 |---|---|---|

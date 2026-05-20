@@ -1,64 +1,126 @@
 package eiruna.mobs.love.darkness;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import blue.endless.jankson.Jankson;
+import blue.endless.jankson.JsonObject;
+import blue.endless.jankson.api.SyntaxError;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Identifier;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class LightSourceDestroyerConfig {
-    public String _comment_LightSourceSearchRadius =
-            "How far away from mob to search for light sources. Min: 1 Max: 128 Default: 16. " +
-            "Performance warning: search cost scales cubically with radius. " +
-            "Radius 16 is negligible, 32 is minor, 64 is noticeable, 128 is severe unless " +
-            "LightFixationEligibilityChancePerMobType values are kept very low (under 0.01). " +
-            "Large radii are intentionally supported but require proportionally rare mob eligibility.";
+    @Comment("""
+            
+            How far away from mob to search for light sources.
+            Performance warning: search cost scales cubically with radius.
+            Radius 16 is negligible, 32 is minor, 64 is noticeable, 128 is severe unless
+            LightFixationEligibilityChancePerMobType values are kept very low (under 0.01).
+            Large radii are intentionally supported but require proportionally rare mob eligibility.
+            Min: 1 Max: 128 Default: 16
+            """)
     public int LightSourceSearchRadius = 16;
-    public String _comment_LightSourceSearchRadiusVertical =
-            "Vertical block radius to search for light sources. " +
-            "Keeping this low prevents mobs targeting unreachable underground lights. " +
-            "Min: 1 Max: 128 Default: 4";
+
+    @Comment("""
+            
+            Vertical block radius to search for light sources.
+            Keeping this low prevents mobs targeting unreachable underground lights.
+            Min: 1 Max: 128 Default: 4
+            """)
     public int LightSourceSearchRadiusVertical = 4;
-    public String _comment_LightSourceBreakTimeTicks =
-            "How many ticks it takes to break a light source. Min: 1 Max: 1200 Default: 20";
+
+    @Comment("""
+            
+            How many ticks it takes to break a light source.
+            Min: 1 Max: 1200 Default: 20
+            """)
     public int LightSourceBreakTimeTicks = 20;
-    public String _comment_LightFixationChance =
-            "Chance per search attempt that a mob with the light fixation goal will fixate on a nearby light source. " +
-            "Note: searches occur at most once per second rather than every tick, so this is effectively " +
-            "a chance-per-second rather than a chance-per-tick. " +
-            "Min: 0.0 Max: 1.0 Default: 0.05";
-    public float LightFixationChance = 0.05F;
-    public String _comment_LightFixationSpeedMultiplier =
-            "How movement speed should change while mob is moving toward a light source. Min: 0.1 Max: 10.0 Default: 0.85";
-    public float LightFixationSpeedMultiplier = 0.85F;
-    public String _comment_LightFixationCooldownTicks =
-            "How long to wait after destroying a light source before targeting a new one. Min: 0 Max: 72000 Default: 200";
+
+    @Comment("""
+            
+            Chance per search attempt that a mob with the light fixation goal will fixate on a nearby light source.
+            Note: searches occur at most once per second rather than every tick, so this is effectively
+            a chance-per-second rather than a chance-per-tick.
+            Min: 0.0 Max: 1.0 Default: 0.05
+            """)
+    public double LightFixationChance = 0.05;
+
+    @Comment("""
+            
+            How movement speed should change while mob is moving toward a light source.
+            Min: 0.1 Max: 10.0 Default: 0.85
+            """)
+    public double LightFixationSpeedMultiplier = 0.85;
+
+    @Comment("""
+            
+            How long to wait after destroying a light source before targeting a new one.
+            Min: 0 Max: 72000 Default: 200
+            """)
     public int LightFixationCooldownTicks = 200;
-    public String _comment_LightFixationGoalPriority =
-            "Goal priority for the light fixation behavior. Lower numbers take priority over higher numbers. Vanilla zombie attack goal is priority 2. Recommended values: 1 (high priority, overrides most behaviors) 3 (low priority, most other behaviors take precedence). Min: 1 Max: 10 Default: 3";
+
+    @Comment("""
+            
+            Goal priority for the light fixation behavior. Lower numbers take priority over higher numbers.
+            Vanilla zombie attack goal is priority 2.
+            Recommended values: 1 (high priority, overrides most behaviors)
+                                3 (low priority, most other behaviors take precedence).
+            Min: 1 Max: 10 Default: 3
+            """)
     public int LightFixationGoalPriority = 3;
-    public String _comment_EnableParticles =
-            "Should particle effects be used while the mob is targeting a light source? Allowed values: true/false Default: true";
+
+    @Comment("""
+            
+            Should particle effects be used while the mob is targeting a light source?
+            Allowed values: true/false Default: true
+            """)
     public boolean EnableParticles = true;
-    public String _comment_EnableSounds =
-            "Should sounds be played when the mob starts targeting and destroys a light source? Allowed values: true/false Default: true";
+
+    @Comment("""
+            
+            Should sounds be played when the mob starts targeting and destroys a light source?
+            Allowed values: true/false Default: true
+            """)
     public boolean EnableSounds = true;
-    public String _comment_EnableLightFixationGlowEffect =
-            "Should fixated mobs glow? Makes them easier to identify. Allowed values: true/false Default: true";
+
+    @Comment("""
+            
+            Should fixated mobs glow? Makes them easier to identify.
+            Allowed values: true/false Default: true
+            """)
     public boolean EnableLightFixationGlowEffect = true;
-    public String _comment_LightFixationMaxGoalTicks =
-            "Maximum ticks a mob can spend on a single fixation attempt before giving up. " +
-            "Increase for mobs with poor pathfinding like phantoms. Min: 100 Max: 72000 Default: 600";
+
+    @Comment("""
+            
+            Maximum ticks a mob can spend on a single fixation attempt before giving up.
+            Increase for mobs with poor pathfinding like phantoms.
+            Min: 100 Max: 72000 Default: 600
+            """)
     public int LightFixationMaxGoalTicks = 600;
-    public String _comment_TargetableLightSources =
-            "Which blocks are valid light sources to target? Provide an array of blocks including mod prefix. Default: [ \"minecraft:torch\", \"minecraft:wall_torch\", \"minecraft:lantern\", \"minecraft:soul_torch\", \"minecraft:soul_lantern\", \"minecraft:campfire\", \"minecraft:soul_campfire\" ] ";
+
+    @Comment("""
+            
+            Which blocks are valid light sources to target?
+            Provide an array of blocks including mod prefix.
+            Default:
+            [
+                "minecraft:torch",
+                "minecraft:wall_torch",
+                "minecraft:lantern",
+                "minecraft:soul_torch",
+                "minecraft:soul_lantern",
+                "minecraft:campfire",
+                "minecraft:soul_campfire"
+            ]
+            """)
     public List<String> TargetableLightSources = List.of(
             "minecraft:torch",
             "minecraft:wall_torch",
@@ -68,59 +130,76 @@ public class LightSourceDestroyerConfig {
             "minecraft:campfire",
             "minecraft:soul_campfire"
     );
-    public String _comment_LightFixationEligibilityChancePerMobType =
-            "Chance per mob type to receive the light fixation goal on spawn. " +
-            "Performance warning: each mob with the goal searches for light sources periodically. " +
-            "Keep total eligible mobs under ~10-20 for default settings. " +
-            "If using large search radii, keep eligibility chances proportionally lower. " +
-            "Format: { \"namespace:mob_id\": chance }";
-    public Map<String, Float> LightFixationEligibilityChancePerMobType = new HashMap<>(Map.of(
-            "minecraft:zombie", 0.05f,
-            "minecraft:husk", 0.05f,
-            "minecraft:zombie_villager", 0.05f,
-            "minecraft:zombified_piglin", 0.05f,
-            "minecraft:phantom", 0.75f
+
+    @Comment("""
+            
+            Chance per mob type to receive the light fixation goal on spawn.
+            Performance warning: each mob with the goal searches for light sources periodically.
+            Keep total eligible mobs under ~10-20 for default settings.
+            If using large search radii, keep eligibility chances proportionally lower.
+            Format: { "namespace:mob_id": chance }
+            """)
+    public Map<String, Double> LightFixationEligibilityChancePerMobType = new HashMap<>(Map.of(
+            "minecraft:zombie", 0.05,
+            "minecraft:husk", 0.05,
+            "minecraft:zombie_villager", 0.05,
+            "minecraft:zombified_piglin", 0.05,
+            "minecraft:phantom", 0.75
     ));
 
     // --- Derived sets, built once at load time ---
     public transient Set<Identifier> TargetableLightSourcesSet;
-    public transient Map<Identifier, Float> LightFixationEligibilityChancePerMobTypeMap; // derived
+    public transient Map<Identifier, Double> LightFixationEligibilityChancePerMobTypeMap; // derived
 
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final String CONFIG_FILE = MobsLoveDarkness.MOD_ID + ".json";
+    private static final String CONFIG_FILE = MobsLoveDarkness.MOD_ID + ".json5";
 
-    // Called after Gson populates the fields
-    public void init() {
-        validate();
-        TargetableLightSourcesSet = TargetableLightSources.stream()
-                .map(Identifier::of)
-                .collect(Collectors.toCollection(HashSet::new));
-    }
+    private LightSourceDestroyerConfig(){}
 
     public static LightSourceDestroyerConfig load() {
         Path path = FabricLoader.getInstance().getConfigDir().resolve(CONFIG_FILE);
 
         LightSourceDestroyerConfig config;
+        Jankson jankson = Jankson.builder().build();
 
         if (Files.exists(path)) {
-            try (Reader reader = Files.newBufferedReader(path)) {
-                config = GSON.fromJson(reader, LightSourceDestroyerConfig.class);
-            } catch (IOException e) {
+            try {
+                JsonObject obj = jankson.load(path.toFile());
+                config = jankson.fromJson(obj, LightSourceDestroyerConfig.class);
+            } catch (IOException | SyntaxError e) {
                 MobsLoveDarkness.LOGGER.info("Failed to read config, using defaults: {}", e.getMessage());
                 config = new LightSourceDestroyerConfig();
             }
         } else {
             config = new LightSourceDestroyerConfig();
-            // Write defaults to disk so the user can edit them
-            try (Writer writer = Files.newBufferedWriter(path)) {
-                GSON.toJson(config, writer);
-            } catch (IOException e) {
-                MobsLoveDarkness.LOGGER.info("Failed to write default config: {}", e.getMessage());
-            }
+        }
+
+        try {
+            JsonObject json = (JsonObject) jankson.toJson(config);
+            applyComments(json);
+            Files.writeString(path, json.toJson(true, true));
+        } catch (IOException e) {
+            MobsLoveDarkness.LOGGER.info("Failed to write config: {}", e.getMessage());
         }
 
         config.init();
         return config;
+    }
+
+    private static void applyComments(JsonObject json){
+        for (Field field : LightSourceDestroyerConfig.class.getFields()) {
+            Comment comment = field.getAnnotation(Comment.class);
+
+            if (comment != null) {
+                json.setComment(field.getName(), comment.value());
+            }
+        }
+    }
+
+    private void init() {
+        validate();
+        TargetableLightSourcesSet = TargetableLightSources.stream()
+                .map(Identifier::of)
+                .collect(Collectors.toCollection(HashSet::new));
     }
 
     private void validate() {
@@ -130,19 +209,19 @@ public class LightSourceDestroyerConfig {
         LightFixationCooldownTicks = clampInt("LightFixationCooldownTicks", LightFixationCooldownTicks, 0, 72000);
         LightFixationGoalPriority = clampInt("LightFixationGoalPriority", LightFixationGoalPriority, 1, 10);
         LightFixationMaxGoalTicks = clampInt("LightFixationMaxGoalTicks", LightFixationMaxGoalTicks, 100, 72000);
-        LightFixationSpeedMultiplier = clampFloat("LightFixationSpeedMultiplier", LightFixationSpeedMultiplier, 0.1F, 10.0F);
-        LightFixationChance = clampFloat("LightFixationChance", LightFixationChance, 0.0F, 1.0F);
+        LightFixationSpeedMultiplier = clampDouble("LightFixationSpeedMultiplier", LightFixationSpeedMultiplier, 0.1F, 10.0F);
+        LightFixationChance = clampDouble("LightFixationChance", LightFixationChance, 0.0F, 1.0F);
         if (LightFixationEligibilityChancePerMobType == null ||
                 LightFixationEligibilityChancePerMobType.isEmpty()) {
             MobsLoveDarkness.LOGGER.warn(
                     "Config: LightFixationEligibilityChancePerMobType is empty — no mobs will get the goal. Using defaults."
             );
             LightFixationEligibilityChancePerMobType = new HashMap<>(Map.of(
-                    "minecraft:zombie", 0.05f,
-                    "minecraft:husk", 0.05f,
-                    "minecraft:zombie_villager", 0.05f,
-                    "minecraft:zombified_piglin", 0.05f,
-                    "minecraft:phantom", 0.75f
+                    "minecraft:zombie", 0.05,
+                    "minecraft:husk", 0.05,
+                    "minecraft:zombie_villager", 0.05,
+                    "minecraft:zombified_piglin", 0.05,
+                    "minecraft:phantom", 0.75
             ));
         }
 
@@ -200,7 +279,7 @@ public class LightSourceDestroyerConfig {
         return value;
     }
 
-    private float clampFloat(String fieldName, float value, float min, float max) {
+    private double clampDouble(String fieldName, double value, double min, double max) {
         if (value < min || value > max) {
             MobsLoveDarkness.LOGGER.warn(
                     "Config: {} value {} is out of range [{}, {}], clamping to nearest valid value.",
@@ -226,5 +305,11 @@ public class LightSourceDestroyerConfig {
                 );
             }
         }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Comment {
+        String value();
     }
 }
