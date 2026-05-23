@@ -2,13 +2,15 @@ package eiruna.mobs.love.darkness;
 
 import net.fabricmc.api.ModInitializer;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MobsLoveDarkness implements ModInitializer {
 	public static final String MOD_ID = "mobs-love-darkness";
 
-	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	public static final PrefixLogger LOGGER = new PrefixLogger(
+			LoggerFactory.getLogger(MOD_ID),
+			"[Mobs Love Darkness] "
+	);
 
 	@Override
 	public void onInitialize() {
@@ -20,3 +22,4 @@ public class MobsLoveDarkness implements ModInitializer {
 		LOGGER.info("Initialization completed.");
 	}
 }
+

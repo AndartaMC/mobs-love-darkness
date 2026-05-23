@@ -121,7 +121,7 @@ public class LightSourceDestroyerConfig {
                 "minecraft:soul_campfire"
             ]
             """)
-    public List<String> TargetableLightSources = List.of(
+    public List<String> TargetableLightSources = new ArrayList<>(List.of(
             "minecraft:torch",
             "minecraft:wall_torch",
             "minecraft:lantern",
@@ -129,7 +129,7 @@ public class LightSourceDestroyerConfig {
             "minecraft:soul_lantern",
             "minecraft:campfire",
             "minecraft:soul_campfire"
-    );
+    ));
 
     @Comment("""
             
@@ -139,7 +139,7 @@ public class LightSourceDestroyerConfig {
             If using large search radii, keep eligibility chances proportionally lower.
             Format: { "namespace:mob_id": chance }
             """)
-    public Map<String, Double> LightFixationEligibilityChancePerMobType = new HashMap<>(Map.of(
+    public Map<String, Double> LightFixationEligibilityChancePerMobType = new LinkedHashMap<>(Map.of(
             "minecraft:zombie", 0.05,
             "minecraft:husk", 0.05,
             "minecraft:zombie_villager", 0.05,
