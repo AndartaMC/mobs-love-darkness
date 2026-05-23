@@ -1,5 +1,7 @@
 # Mobs Love Darkness
 
+<img src="src/main/resources/assets/mobs-love-darkness/icon.png" width="256"/>
+
 A Fabric mod for Minecraft 1.21.11 that gives certain mobs a chance to fixate on and destroy nearby light sources, creating dangerous dark zones and rewarding players who pay attention.
 
 ## What it does
@@ -24,7 +26,7 @@ Everything is highly configurable.
 
 ## Default behavior
 
-By default the following mobs are eligible for the light fixation goal:
+By default, the following mobs are eligible for the light fixation goal:
 
 | Mob | Default eligibility chance |
 |---|---|
