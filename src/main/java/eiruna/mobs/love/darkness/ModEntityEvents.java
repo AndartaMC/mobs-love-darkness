@@ -7,13 +7,13 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.rule.GameRules;
+import net.minecraft.world.GameRules;
 
 public class ModEntityEvents {
     public static void register(LightSourceDestroyerConfig config) {
         ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
             if (!(entity instanceof MobEntity mob)) return;
-            if (!world.getGameRules().getValue(GameRules.DO_MOB_GRIEFING)) return;
+            if (!world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) return;
 
             Identifier entityId = Registries.ENTITY_TYPE.getId(entity.getType());
             String mobType = mob.getType().toString();
