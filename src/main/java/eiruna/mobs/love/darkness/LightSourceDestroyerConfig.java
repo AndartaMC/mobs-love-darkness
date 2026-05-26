@@ -40,6 +40,7 @@ public class LightSourceDestroyerConfig {
     @Comment("""
             
             How many ticks it takes to break a light source.
+            Must be smaller than LightFixationMaxGoalTicks.
             Min: 1 Max: 1200 Default: 20
             """)
     public int LightSourceBreakTimeTicks = 20;
@@ -102,6 +103,7 @@ public class LightSourceDestroyerConfig {
             
             Maximum ticks a mob can spend on a single fixation attempt before giving up.
             Increase for mobs with poor pathfinding like phantoms.
+            Must be greater than LightSourceBreakTimeTicks.
             Min: 100 Max: 72000 Default: 600
             """)
     public int LightFixationMaxGoalTicks = 600;
@@ -166,22 +168,24 @@ public class LightSourceDestroyerConfig {
                 JsonObject obj = jankson.load(path.toFile());
                 config = jankson.fromJson(obj, LightSourceDestroyerConfig.class);
             } catch (IOException | SyntaxError e) {
-                MobsLoveDarkness.LOGGER.info("Failed to read config, using defaults: {}", e.getMessage());
+                MobsLoveDarkness.LOGGER.warn("Failed to read config, using defaults: {}", e.getMessage());
                 config = new LightSourceDestroyerConfig();
             }
         } else {
             config = new LightSourceDestroyerConfig();
         }
 
+        // Validate first so corrected values are what gets written to disk
+        config.init();
+
         try {
             JsonObject json = (JsonObject) jankson.toJson(config);
             applyComments(json);
             Files.writeString(path, json.toJson(true, true));
         } catch (IOException e) {
-            MobsLoveDarkness.LOGGER.info("Failed to write config: {}", e.getMessage());
+            MobsLoveDarkness.LOGGER.warn("Failed to write config: {}", e.getMessage());
         }
 
-        config.init();
         return config;
     }
 
@@ -266,6 +270,34 @@ public class LightSourceDestroyerConfig {
 
         // Warn about any malformed identifier strings in either list
         validateIdentifierList("TargetableLightSources", TargetableLightSources);
+
+        if (LightFixationMaxGoalTicks <= LightSourceBreakTimeTicks) {
+            int corrected = LightSourceBreakTimeTicks * 3;
+            MobsLoveDarkness.LOGGER.warn(
+                    "Config: LightFixationMaxGoalTicks ({}) must be greater than LightSourceBreakTimeTicks ({}). " +
+                            "Setting LightFixationMaxGoalTicks to {} (3x break time).",
+                    LightFixationMaxGoalTicks, LightSourceBreakTimeTicks, corrected
+            );
+            LightFixationMaxGoalTicks = corrected;
+        }
+
+        // Rough heuristic: at default speed a mob covers ~4 blocks/second
+        // squaredRadius / 16 gives approximate seconds needed to cross the search radius
+        double approximateTravelTicks = (LightSourceSearchRadius * LightSourceSearchRadius) / (16.0 * LightFixationSpeedMultiplier);
+        if (LightFixationMaxGoalTicks < approximateTravelTicks) {
+            MobsLoveDarkness.LOGGER.warn(
+                    "Config: LightFixationMaxGoalTicks ({}) may be too low for LightSourceSearchRadius ({}). " +
+                            "Mobs targeting distant light sources may time out before reaching them.",
+                    LightFixationMaxGoalTicks, LightSourceSearchRadius
+            );
+        }
+
+        if (LightFixationChance == 0.0) {
+            MobsLoveDarkness.LOGGER.warn(
+                    "Config: LightFixationChance is 0.0 — mobs will never fixate on light sources " +
+                            "even if they are eligible. Set to a value above 0.0 to enable fixation behavior."
+            );
+        }
     }
 
     private int clampInt(String fieldName, int value, int min, int max) {
