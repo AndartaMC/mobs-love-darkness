@@ -202,8 +202,12 @@ public class LightSourceDestroyerConfig {
     private void init() {
         validate();
         TargetableLightSourcesSet = TargetableLightSources.stream()
-                .map(Identifier::of)
+                .map(LightSourceDestroyerConfig::id)
                 .collect(Collectors.toCollection(HashSet::new));
+    }
+
+    private static Identifier id(String string) {
+        return new Identifier(string);
     }
 
     private void validate() {
@@ -243,7 +247,7 @@ public class LightSourceDestroyerConfig {
                                 "is {} which is out of range [0.0, 1.0], clamping.", mobId, chance
                 );
                 LightFixationEligibilityChancePerMobType.put(
-                        mobId, Math.clamp(chance, 0.0f, 1.0f)
+                        mobId, Math.max(0.0f, Math.min(1.0f, chance))
                 );
             }
         });
@@ -251,7 +255,7 @@ public class LightSourceDestroyerConfig {
         LightFixationEligibilityChancePerMobTypeMap = LightFixationEligibilityChancePerMobType
                 .entrySet().stream()
                 .collect(Collectors.toMap(
-                        e -> Identifier.of(e.getKey()),
+                        e -> id(e.getKey()),
                         Map.Entry::getValue
                 ));
 
@@ -306,7 +310,7 @@ public class LightSourceDestroyerConfig {
                     "Config: {} value {} is out of range [{}, {}], clamping to nearest valid value.",
                     fieldName, value, min, max
             );
-            return Math.clamp(value, min, max);
+            return Math.max(min, Math.min(max, value));
         }
         return value;
     }
@@ -317,7 +321,7 @@ public class LightSourceDestroyerConfig {
                     "Config: {} value {} is out of range [{}, {}], clamping to nearest valid value.",
                     fieldName, value, min, max
             );
-            return Math.clamp(value, min, max);
+            return Math.max(min, Math.min(max, value));
         }
         return value;
     }

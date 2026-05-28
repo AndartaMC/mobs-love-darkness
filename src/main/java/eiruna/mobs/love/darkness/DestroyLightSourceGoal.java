@@ -15,8 +15,8 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
-import net.minecraft.world.rule.GameRules;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -302,7 +302,7 @@ public class DestroyLightSourceGoal extends Goal {
         }
 
         if(world instanceof ServerWorld serverWorld){
-            if (!serverWorld.getGameRules().getValue(GameRules.DO_MOB_GRIEFING)) {
+            if (!serverWorld.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
                 MobsLoveDarkness.LOGGER.debug("{} mob griefing disabled, aborting break.", mobType);
                 resetFixation();
                 return;
